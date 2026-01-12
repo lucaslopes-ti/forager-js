@@ -1,332 +1,269 @@
 /**
- * Sistema de Interface do Jogo Forager
- * Gerencia a atualização e renderização da UI
+ * Sistema de UI
  */
 
-/**
- * Classe que gerencia a interface do usuário
- */
 class UIManager {
-    /**
-     * Cria um novo gerenciador de UI
-     * @param {Inventory} inventory - Inventário do jogador
-     * @param {CraftingSystem} craftingSystem - Sistema de crafting
-     */
-    constructor(inventory, craftingSystem) {
-        this.inventory = inventory;
-        this.craftingSystem = craftingSystem;
-        this.craftingMenuOpen = false;
-        this.level = 1;
-        this.xp = 0;
-        this.xpToNextLevel = 100;
+    constructor() {
+        this.notifications = [];
+        this.showBuildMenu = false;
+        this.showQuestPanel = false;
+        this.showAchievementPanel = false;
     }
 
-    /**
-     * Inicializa a UI
-     */
-    init() {
-        this.updateInventory();
-        this.updateCraftingMenu();
-        this.updateStats();
-
-        // Botão de crafting
-        const craftButton = document.getElementById('craft-button');
-        craftButton.addEventListener('click', () => {
-            this.toggleCraftingMenu();
-        });
-
-        // Botão de iniciar jogo
-        const startButton = document.getElementById('start-button');
-        startButton.addEventListener('click', () => {
-            this.hideStartScreen();
-        });
-    }
-
-    /**
-     * Esconde a tela de início e inicia o jogo
-     */
-    hideStartScreen() {
-        const startScreen = document.getElementById('start-screen');
-        startScreen.classList.add('hidden');
-        
-        // Inicia o game loop se a função startGame estiver disponível
-        if (typeof startGame === 'function') {
-            startGame();
-        }
-    }
-
-    /**
-     * Atualiza a exibição do inventário
-     */
-    updateInventory() {
-        const inventoryItems = document.getElementById('inventory-items');
-        inventoryItems.innerHTML = '';
-
-        const items = this.inventory.getAllItems();
-        const itemColors = {
-            'apple': '#FF6B6B',
-            'grass': '#51CF66',
-            'stone': '#8B8680',
-            'axe': '#8B4513',
-            'pickaxe': '#696969',
-            'sword': '#C0C0C0',
-            'basket': '#DEB887',
-            'hammer': '#708090'
-        };
-
-        const itemNames = {
-            'apple': 'Maçã',
-            'grass': 'Grama',
-            'stone': 'Pedra',
-            'axe': 'Machado',
-            'pickaxe': 'Picareta',
-            'sword': 'Espada',
-            'basket': 'Cesta',
-            'hammer': 'Martelo'
-        };
-
-        for (const [itemType, quantity] of Object.entries(items)) {
-            if (quantity > 0) {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'inventory-item';
-
-                const icon = document.createElement('div');
-                icon.className = 'inventory-item-icon';
-                icon.style.backgroundColor = itemColors[itemType] || '#999';
-                icon.style.border = `2px solid ${itemColors[itemType] || '#999'}`;
-
-                const count = document.createElement('div');
-                count.className = 'inventory-item-count';
-                count.textContent = quantity;
-
-                const name = document.createElement('div');
-                name.className = 'inventory-item-name';
-                name.textContent = itemNames[itemType] || itemType;
-
-                itemDiv.appendChild(icon);
-                itemDiv.appendChild(count);
-                itemDiv.appendChild(name);
-                inventoryItems.appendChild(itemDiv);
-            }
-        }
-
-        // Se inventário vazio, mostra mensagem
-        if (Object.values(items).every(qty => qty === 0)) {
-            const emptyMsg = document.createElement('div');
-            emptyMsg.style.color = '#888';
-            emptyMsg.style.fontSize = '0.9em';
-            emptyMsg.textContent = 'Inventário vazio';
-            inventoryItems.appendChild(emptyMsg);
-        }
-    }
-
-    /**
-     * Atualiza o menu de crafting
-     */
-    updateCraftingMenu() {
-        const craftingRecipes = document.getElementById('crafting-recipes');
-        craftingRecipes.innerHTML = '';
-
-        const recipes = this.craftingSystem.getRecipes();
-
-        recipes.forEach((recipe, index) => {
-            const recipeDiv = document.createElement('div');
-            recipeDiv.className = 'recipe-item';
-
-            const nameDiv = document.createElement('div');
-            nameDiv.className = 'recipe-name';
-            nameDiv.textContent = recipe.name;
-
-            const ingredientsDiv = document.createElement('div');
-            ingredientsDiv.className = 'recipe-ingredients';
-            const ingredientsText = Object.entries(recipe.ingredients)
-                .map(([item, qty]) => `${qty}x ${item}`)
-                .join(', ');
-            ingredientsDiv.textContent = `Requer: ${ingredientsText}`;
-
-            const button = document.createElement('button');
-            button.className = 'recipe-button';
-            button.textContent = 'Craftar';
-            button.type = 'button'; // Garante que não seja submit
-            const canCraft = this.craftingSystem.canCraft(this.inventory, index);
-            button.disabled = !canCraft;
-            
-            // Debug
-            console.log(`Receita ${recipe.name}:`, {
-                canCraft: canCraft,
-                ingredients: recipe.ingredients,
-                inventory: this.inventory.getAllItems()
-            });
-
-            // Adiciona evento de clique
-            const clickHandler = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                console.log(`[CRAFT] Tentando craftar: ${recipe.name}`, {
-                    recipeIndex: index,
-                    ingredients: recipe.ingredients,
-                    inventory: this.inventory.getAllItems()
-                });
-                
-                // Verifica novamente se pode craftar
-                const canCraftNow = this.craftingSystem.canCraft(this.inventory, index);
-                console.log('[CRAFT] Pode craftar agora?', canCraftNow);
-                
-                if (!canCraftNow) {
-                    console.log('[CRAFT] Não pode craftar - ingredientes insuficientes');
-                    this.showNotification('❌ Ingredientes insuficientes!', 'error');
-                    return;
-                }
-                
-                // Tenta craftar
-                const craftResult = this.craftingSystem.craft(this.inventory, index);
-                console.log('[CRAFT] Resultado do craft:', craftResult);
-                
-                if (craftResult) {
-                    console.log('[CRAFT] Craft realizado com sucesso!');
-                    
-                    // Animação de crafting
-                    recipeDiv.classList.add('crafting');
-                    setTimeout(() => {
-                        recipeDiv.classList.remove('crafting');
-                    }, 600);
-                    
-                    // Atualiza UI
-                    this.updateInventory();
-                    this.updateCraftingMenu();
-                    this.addXP(20); // Ganha XP ao craftar
-                    this.showNotification(`✨ ${recipe.name} craftado com sucesso!`, 'success');
-                    this.playSound('craft');
-                } else {
-                    console.log('[CRAFT] Falha ao craftar');
-                    this.showNotification('❌ Erro ao craftar! Verifique os ingredientes.', 'error');
-                }
-            };
-            
-            button.addEventListener('click', clickHandler);
-            // Também adiciona mousedown como fallback
-            button.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                clickHandler(e);
-            });
-
-            recipeDiv.appendChild(nameDiv);
-            recipeDiv.appendChild(ingredientsDiv);
-            recipeDiv.appendChild(button);
-            craftingRecipes.appendChild(recipeDiv);
-        });
-    }
-
-    /**
-     * Alterna visibilidade do menu de crafting
-     */
-    toggleCraftingMenu() {
-        this.craftingMenuOpen = !this.craftingMenuOpen;
-        const craftingRecipes = document.getElementById('crafting-recipes');
-        const craftButton = document.getElementById('craft-button');
-
-        if (this.craftingMenuOpen) {
-            craftingRecipes.style.display = 'block';
-            craftButton.textContent = 'Fechar Crafting (C)';
-            // Atualiza o menu quando abre para garantir que os botões estejam corretos
-            this.updateCraftingMenu();
-        } else {
-            craftingRecipes.style.display = 'none';
-            craftButton.textContent = 'Abrir Crafting (C)';
-        }
-    }
-
-    /**
-     * Atualiza estatísticas (nível e XP)
-     */
-    updateStats() {
-        document.getElementById('level-value').textContent = this.level;
-        document.getElementById('xp-value').textContent = this.xp;
-        document.getElementById('xp-max').textContent = this.xpToNextLevel;
-        
-        // Atualiza barra de XP
-        const xpPercentage = (this.xp / this.xpToNextLevel) * 100;
-        const xpBarFill = document.getElementById('xp-bar-fill');
-        const xpBarGlow = document.getElementById('xp-bar-glow');
-        if (xpBarFill) {
-            xpBarFill.style.width = `${xpPercentage}%`;
-            xpBarGlow.style.width = `${xpPercentage}%`;
-        }
-    }
-
-    /**
-     * Adiciona XP ao jogador
-     * @param {number} amount - Quantidade de XP a adicionar
-     */
-    addXP(amount) {
-        const oldLevel = this.level;
-        this.xp += amount;
-        
-        while (this.xp >= this.xpToNextLevel) {
-            this.xp -= this.xpToNextLevel;
-            this.level++;
-            this.xpToNextLevel = Math.floor(this.xpToNextLevel * 1.5);
-        }
-        
-        // Mostra notificação de level up
-        if (this.level > oldLevel) {
-            this.showNotification(`🎉 Nível ${this.level} alcançado!`, 'level-up');
-        }
-        
-        this.updateStats();
-    }
-
-    /**
-     * Mostra uma mensagem temporária
-     * @param {string} message - Mensagem a exibir
-     * @param {string} type - Tipo da notificação ('success', 'error', 'level-up')
-     */
-    showMessage(message, type = 'success') {
-        this.showNotification(message, type);
-    }
-
-    /**
-     * Mostra uma notificação visual na tela
-     * @param {string} message - Mensagem a exibir
-     * @param {string} type - Tipo da notificação ('success', 'error', 'level-up')
-     */
-    showNotification(message, type = 'success') {
-        const container = document.getElementById('notifications-container');
+    showNotification(message, type = 'info', duration = 2500) {
+        const container = document.getElementById('notifications');
         if (!container) return;
 
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
-        notification.textContent = message;
-
+        notification.innerHTML = message;
         container.appendChild(notification);
 
-        // Remove após animação
         setTimeout(() => {
-            notification.style.animation = 'notification-fade-out 0.3s ease-in forwards';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 300);
-        }, 3000);
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 400);
+        }, duration);
     }
 
-    /**
-     * Toca um som (simulado)
-     * @param {string} soundType - Tipo do som
-     */
-    playSound(soundType) {
-        // Simulação de som - em uma implementação completa, usaria Web Audio API
-        console.log(`[SOM] ${soundType}`);
+    updateInventory(inventory) {
+        const container = document.getElementById('inventory');
+        if (!container) return;
+
+        const icons = { 'apple': '🍎', 'grass': '🌿', 'stone': '🪨', 'wood': '🪵', 'gold': '💰' };
+        let html = '<div class="inventory-title">📦 Inventário</div><div class="inventory-items">';
+
+        for (const [item, qty] of Object.entries(inventory.items)) {
+            if (qty > 0) {
+                html += `<div class="inventory-item"><span class="item-icon">${icons[item] || '❓'}</span><span class="item-qty">${qty}</span></div>`;
+            }
+        }
+
+        // Ferramentas
+        for (const [tool, qty] of Object.entries(inventory.tools)) {
+            if (qty > 0) {
+                const toolIcons = { 'axe': '🪓', 'pickaxe': '⛏️', 'sword': '⚔️', 'bow': '🏹', 'shield': '🛡️' };
+                html += `<div class="inventory-item tool"><span class="item-icon">${toolIcons[tool] || '🔧'}</span><span class="item-qty">${qty}</span></div>`;
+            }
+        }
+
+        // Consumíveis
+        if (inventory.consumables.health_potion > 0) {
+            html += `<div class="inventory-item consumable"><span class="item-icon">🧪</span><span class="item-qty">${inventory.consumables.health_potion}</span></div>`;
+        }
+
+        html += '</div>';
+        container.innerHTML = html;
     }
 
-    /**
-     * Atualiza toda a UI
-     */
-    update() {
-        this.updateInventory();
-        this.updateCraftingMenu();
-        this.updateStats();
+    updateCraftingMenu(craftingSystem, inventory) {
+        const container = document.getElementById('crafting');
+        if (!container) return;
+
+        let html = '<div class="crafting-title">⚒️ Crafting</div><div class="crafting-items">';
+
+        craftingSystem.getRecipes().forEach((recipe, index) => {
+            const canCraft = craftingSystem.canCraft(inventory, index);
+            html += `
+                <div class="craft-item ${canCraft ? 'available' : 'unavailable'}" data-index="${index}">
+                    <span class="craft-icon">${recipe.icon}</span>
+                    <div class="craft-info">
+                        <span class="craft-name">${recipe.name}</span>
+                        <span class="craft-desc">${recipe.description}</span>
+                        <div class="craft-cost">`;
+
+            const icons = { 'apple': '🍎', 'grass': '🌿', 'stone': '🪨', 'wood': '🪵', 'gold': '💰' };
+            for (const [item, qty] of Object.entries(recipe.ingredients)) {
+                const has = inventory.hasItem(item, qty);
+                html += `<span class="${has ? 'has' : 'missing'}">${icons[item] || item}${qty}</span>`;
+            }
+
+            html += `</div></div>
+                    <button class="craft-btn" ${canCraft ? '' : 'disabled'}>${canCraft ? 'Criar' : '❌'}</button>
+                </div>`;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    updateBuildMenu(structureManager, inventory) {
+        const container = document.getElementById('build-menu');
+        if (!container) return;
+
+        let html = '<div class="build-title">🏗️ Construir</div><div class="build-items">';
+
+        structureManager.buildingRecipes.forEach(recipe => {
+            const canBuild = structureManager.canBuild(recipe, inventory);
+            html += `
+                <div class="build-item ${canBuild ? 'available' : 'unavailable'}" data-type="${recipe.type}">
+                    <span class="build-icon">${recipe.icon}</span>
+                    <div class="build-info">
+                        <span class="build-name">${recipe.name}</span>
+                        <span class="build-desc">${recipe.description}</span>
+                        <div class="build-cost">`;
+
+            const icons = { 'wood': '🪵', 'stone': '🪨', 'gold': '💰' };
+            for (const [item, qty] of Object.entries(recipe.cost)) {
+                const has = inventory.hasItem(item, qty);
+                html += `<span class="${has ? 'has' : 'missing'}">${icons[item] || item}${qty}</span>`;
+            }
+
+            html += `</div></div></div>`;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    updateQuestPanel(questManager) {
+        const container = document.getElementById('quest-panel');
+        if (!container) return;
+
+        let html = '<div class="quest-title">📜 Missões</div><div class="quest-list">';
+
+        questManager.getActiveQuests().forEach(quest => {
+            const progress = quest.getProgress();
+            html += `
+                <div class="quest-item ${quest.completed ? 'completed' : ''}">
+                    <div class="quest-header">
+                        <span class="quest-name">${quest.name}</span>
+                        ${quest.completed && !quest.claimed ? `<button class="claim-btn" data-id="${quest.id}">Coletar</button>` : ''}
+                    </div>
+                    <span class="quest-desc">${quest.description}</span>
+                    <div class="quest-progress">
+                        <div class="quest-progress-bar" style="width: ${progress}%"></div>
+                        <span class="quest-progress-text">${quest.progress}/${quest.target}</span>
+                    </div>
+                    <div class="quest-reward">
+                        ${quest.reward.xp ? `⭐${quest.reward.xp}XP` : ''}
+                        ${quest.reward.gold ? `💰${quest.reward.gold}` : ''}
+                    </div>
+                </div>`;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    updateAchievementPanel(achievementManager) {
+        const container = document.getElementById('achievement-panel');
+        if (!container) return;
+
+        const unlocked = achievementManager.getUnlockedCount();
+        const total = achievementManager.achievements.length;
+
+        let html = `<div class="achievement-title">🏆 Conquistas (${unlocked}/${total})</div><div class="achievement-list">`;
+
+        achievementManager.achievements.forEach(ach => {
+            html += `
+                <div class="achievement-item ${ach.unlocked ? 'unlocked' : 'locked'}">
+                    <span class="achievement-icon">${ach.icon}</span>
+                    <div class="achievement-info">
+                        <span class="achievement-name">${ach.unlocked ? ach.name : '???'}</span>
+                        <span class="achievement-desc">${ach.unlocked ? ach.description : 'Conquista bloqueada'}</span>
+                    </div>
+                </div>`;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    updateStats(player, enemyManager) {
+        const container = document.getElementById('stats');
+        if (!container) return;
+
+        const healthPercent = (player.health / player.maxHealth) * 100;
+        const hungerPercent = (player.hunger / player.maxHunger) * 100;
+        const xpPercent = (player.xp / player.xpToNextLevel) * 100;
+        const waveProgress = enemyManager.getWaveProgress();
+
+        let html = `
+            <div class="stat-row">
+                <span class="stat-label">❤️ Vida</span>
+                <div class="stat-bar health-bar">
+                    <div class="stat-fill" style="width: ${healthPercent}%"></div>
+                    <span class="stat-text">${Math.ceil(player.health)}/${player.maxHealth}</span>
+                </div>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">🍖 Fome</span>
+                <div class="stat-bar hunger-bar">
+                    <div class="stat-fill" style="width: ${hungerPercent}%"></div>
+                    <span class="stat-text">${Math.ceil(player.hunger)}/${player.maxHunger}</span>
+                </div>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">⭐ XP</span>
+                <div class="stat-bar xp-bar">
+                    <div class="stat-fill" style="width: ${xpPercent}%"></div>
+                    <span class="stat-text">${player.xp}/${player.xpToNextLevel}</span>
+                </div>
+            </div>
+            <div class="stat-info">
+                <span>🎮 Nível: ${player.level}</span>
+                <span>💀 Kills: ${player.kills}</span>
+                <span>🎯 Score: ${player.score}</span>
+            </div>`;
+
+        if (enemyManager.waveInProgress) {
+            html += `
+                <div class="wave-info">
+                    <span class="wave-label">🌊 Wave ${enemyManager.wave}</span>
+                    <div class="stat-bar wave-bar">
+                        <div class="stat-fill" style="width: ${waveProgress}%"></div>
+                        <span class="stat-text">${enemyManager.waveKills}/${enemyManager.waveEnemies}</span>
+                    </div>
+                </div>`;
+        }
+
+        if (player.combo > 1) {
+            html += `<div class="combo-display">🔥 COMBO x${player.combo}</div>`;
+        }
+
+        html += `<div class="tool-bar">`;
+        player.tools.forEach((tool, i) => {
+            const icons = { 'hand': '👊', 'axe': '🪓', 'pickaxe': '⛏️', 'sword': '⚔️', 'bow': '🏹' };
+            const icon = icons[tool] || '⬜';
+            const selected = i === player.selectedTool ? 'selected' : '';
+            html += `<div class="tool-slot ${selected}" data-slot="${i}"><span>${icon}</span><span class="slot-key">${i + 1}</span></div>`;
+        });
+        html += `</div>`;
+
+        container.innerHTML = html;
+    }
+
+    drawGameOver(ctx, player) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+        ctx.fillStyle = '#ff4757';
+        ctx.font = 'bold 48px Orbitron';
+        ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER', ctx.canvas.width / 2, ctx.canvas.height / 2 - 60);
+
+        ctx.fillStyle = '#fff';
+        ctx.font = '24px Orbitron';
+        ctx.fillText(`Score Final: ${player.score}`, ctx.canvas.width / 2, ctx.canvas.height / 2);
+        ctx.fillText(`Nível: ${player.level}`, ctx.canvas.width / 2, ctx.canvas.height / 2 + 35);
+        ctx.fillText(`Inimigos Derrotados: ${player.kills}`, ctx.canvas.width / 2, ctx.canvas.height / 2 + 70);
+
+        ctx.fillStyle = '#51CF66';
+        ctx.font = '18px Orbitron';
+        ctx.fillText('Pressione ENTER para reiniciar', ctx.canvas.width / 2, ctx.canvas.height / 2 + 120);
+    }
+
+    drawPauseScreen(ctx) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+        ctx.fillStyle = '#ffd700';
+        ctx.font = 'bold 48px Orbitron';
+        ctx.textAlign = 'center';
+        ctx.fillText('PAUSADO', ctx.canvas.width / 2, ctx.canvas.height / 2);
+
+        ctx.fillStyle = '#fff';
+        ctx.font = '18px Orbitron';
+        ctx.fillText('Pressione ESC para continuar', ctx.canvas.width / 2, ctx.canvas.height / 2 + 50);
     }
 }

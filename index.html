@@ -1,55 +1,69 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Forager Game</title>
-    <link rel="stylesheet" href="css/style.css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌿 Forager JS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Tela de Início -->
-    <div id="start-screen" class="screen">
+    <!-- Start Screen -->
+    <div id="start-screen" class="start-screen">
         <div class="start-content">
-            <h1>FORAGER</h1>
-            <p>Colete recursos, crie ferramentas e expanda seu mundo!</p>
-            <button id="start-button">INICIAR JOGO</button>
+            <h1 class="game-title">
+                <span class="title-icon">🌿</span>
+                FORAGER
+                <span class="title-icon">⚔️</span>
+            </h1>
+            <p class="game-subtitle">Colete, Construa, Sobreviva!</p>
+            
+            <div class="controls-preview">
+                <div class="control-item"><span class="key">WASD</span> Mover</div>
+                <div class="control-item"><span class="key">SPACE</span> Atacar/Coletar</div>
+                <div class="control-item"><span class="key">E</span> Comer</div>
+                <div class="control-item"><span class="key">Q</span> Usar Poção</div>
+                <div class="control-item"><span class="key">B</span> Construir</div>
+                <div class="control-item"><span class="key">1-5</span> Ferramentas</div>
+                <div class="control-item"><span class="key">J</span> Missões</div>
+                <div class="control-item"><span class="key">K</span> Conquistas</div>
+            </div>
+
+            <button id="start-btn" class="start-btn">
+                <span class="btn-text">JOGAR</span>
+                <span class="btn-icon">▶</span>
+            </button>
+
+            <div class="credits">
+                <p>Feito com 💚 em JavaScript</p>
+            </div>
         </div>
     </div>
 
-    <!-- Canvas do Jogo -->
-    <canvas id="gameCanvas" width="1024" height="768"></canvas>
+    <!-- Game Container -->
+    <div id="game-container" class="game-container">
+        <canvas id="gameCanvas"></canvas>
 
-    <!-- Sistema de Notificações -->
-    <div id="notifications-container"></div>
-
-    <!-- Container de UI -->
-    <div id="ui-container">
-        <div id="stats-display">
-            <div id="level-display">Nível: <span id="level-value">1</span></div>
-            <div id="xp-display">
-                <div id="xp-label">XP: <span id="xp-value">0</span>/<span id="xp-max">100</span></div>
-                <div id="xp-bar-container">
-                    <div id="xp-bar-fill"></div>
-                    <div id="xp-bar-glow"></div>
-                </div>
-            </div>
-        </div>
-        <div id="inventory-display">
-            <h3>Inventário</h3>
-            <div id="inventory-items"></div>
-        </div>
-        <div id="crafting-menu">
-            <h3>Crafting</h3>
-            <button id="craft-button">Abrir Crafting (C)</button>
-            <div id="crafting-recipes" style="display: none;"></div>
-        </div>
+        <!-- UI Panels -->
+        <div id="stats" class="ui-panel stats-panel"></div>
+        <div id="inventory" class="ui-panel inventory-panel"></div>
+        <div id="crafting" class="ui-panel crafting-panel"></div>
+        <div id="build-menu" class="ui-panel build-panel"></div>
+        <div id="quest-panel" class="ui-panel quest-panel"></div>
+        <div id="achievement-panel" class="ui-panel achievement-panel"></div>
+        <div id="notifications" class="notifications-container"></div>
     </div>
 
     <!-- Scripts -->
+    <script src="js/particles.js"></script>
+    <script src="js/audio.js"></script>
     <script src="js/resources.js"></script>
     <script src="js/inventory.js"></script>
     <script src="js/crafting.js"></script>
     <script src="js/player.js"></script>
+    <script src="js/enemies.js"></script>
+    <script src="js/structures.js"></script>
+    <script src="js/quests.js"></script>
     <script src="js/world.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/main.js"></script>

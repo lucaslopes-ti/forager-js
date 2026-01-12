@@ -1,118 +1,76 @@
 /**
- * Sistema de Inventário do Jogo Forager
- * Gerencia itens coletados pelo jogador
+ * Sistema de Inventário
  */
 
-/**
- * Classe que gerencia o inventário do jogador
- */
 class Inventory {
-    /**
-     * Cria um novo inventário vazio
-     */
     constructor() {
-        this.items = {
-            'apple': 0,
-            'grass': 0,
-            'stone': 0
-        };
+        this.items = { 'apple': 0, 'grass': 0, 'stone': 0, 'wood': 0, 'gold': 0 };
+        this.tools = { 'axe': 0, 'pickaxe': 0, 'sword': 0, 'bow': 0, 'shield': 0 };
+        this.consumables = { 'health_potion': 0 };
     }
 
-    /**
-     * Adiciona um item ao inventário
-     * @param {string} itemType - Tipo do item a adicionar
-     * @param {number} quantity - Quantidade a adicionar (padrão: 1)
-     */
-    addItem(itemType, quantity = 1) {
-        if (this.items.hasOwnProperty(itemType)) {
-            this.items[itemType] += quantity;
-        } else {
-            this.items[itemType] = quantity;
-        }
+    addItem(type, amount = 1) {
+        if (this.items.hasOwnProperty(type)) this.items[type] += amount;
+        else if (this.tools.hasOwnProperty(type)) this.tools[type] += amount;
+        else if (this.consumables.hasOwnProperty(type)) this.consumables[type] += amount;
+        else this.items[type] = amount;
     }
 
-    /**
-     * Remove itens do inventário
-     * @param {string} itemType - Tipo do item a remover
-     * @param {number} quantity - Quantidade a remover
-     * @returns {boolean} - True se conseguiu remover
-     */
-    removeItem(itemType, quantity) {
-        if (this.hasItem(itemType, quantity)) {
-            const currentQuantity = this.items[itemType] || 0;
-            this.items[itemType] = currentQuantity - quantity;
-            // Garante que não fique negativo
-            if (this.items[itemType] < 0) {
-                this.items[itemType] = 0;
-            }
+    removeItem(type, amount) {
+        if (this.hasItem(type, amount)) {
+            if (this.items.hasOwnProperty(type)) this.items[type] -= amount;
+            else if (this.tools.hasOwnProperty(type)) this.tools[type] -= amount;
+            else if (this.consumables.hasOwnProperty(type)) this.consumables[type] -= amount;
             return true;
         }
         return false;
     }
 
-    /**
-     * Verifica se o jogador tem quantidade suficiente de um item
-     * @param {string} itemType - Tipo do item
-     * @param {number} quantity - Quantidade necessária
-     * @returns {boolean} - True se tem quantidade suficiente
-     */
-    hasItem(itemType, quantity) {
-        const currentQuantity = this.items[itemType] || 0;
-        return currentQuantity >= quantity;
+    hasItem(type, amount) {
+        const qty = this.items[type] || this.tools[type] || this.consumables[type] || 0;
+        return qty >= amount;
     }
 
-    /**
-     * Verifica se o jogador tem todos os ingredientes de uma receita
-     * @param {Object} ingredients - Objeto com ingredientes necessários
-     * @returns {boolean} - True se tem todos os ingredientes
-     */
     hasIngredients(ingredients) {
-        for (const [item, quantity] of Object.entries(ingredients)) {
-            if (!this.hasItem(item, quantity)) {
-                return false;
-            }
+        for (const [item, qty] of Object.entries(ingredients)) {
+            if (!this.hasItem(item, qty)) return false;
         }
         return true;
     }
 
-    /**
-     * Remove os ingredientes de uma receita do inventário
-     * @param {Object} ingredients - Objeto com ingredientes a remover
-     * @returns {boolean} - True se conseguiu remover todos
-     */
     removeIngredients(ingredients) {
-        if (!this.hasIngredients(ingredients)) {
-            return false;
-        }
-
-        for (const [item, quantity] of Object.entries(ingredients)) {
-            this.removeItem(item, quantity);
+        if (!this.hasIngredients(ingredients)) return false;
+        for (const [item, qty] of Object.entries(ingredients)) {
+            this.removeItem(item, qty);
         }
         return true;
     }
 
-    /**
-     * Retorna a quantidade de um item no inventário
-     * @param {string} itemType - Tipo do item
-     * @returns {number} - Quantidade do item
-     */
-    getQuantity(itemType) {
-        return this.items[itemType] || 0;
+    getQuantity(type) {
+        return this.items[type] || this.tools[type] || this.consumables[type] || 0;
     }
 
-    /**
-     * Retorna todos os itens do inventário
-     * @returns {Object} - Objeto com todos os itens e quantidades
-     */
     getAllItems() {
-        return { ...this.items };
+        return { ...this.items, ...this.tools, ...this.consumables };
     }
 
-    /**
-     * Adiciona um item craftado ao inventário
-     * @param {string} itemType - Tipo do item craftado
-     */
-    addCraftedItem(itemType) {
-        this.addItem(itemType, 1);
+    getTotalItems() {
+        let total = 0;
+        for (const qty of Object.values(this.items)) total += qty;
+        return total;
+    }
+
+    hasTool(type) {
+        return (this.tools[type] || 0) > 0;
+    }
+
+    getSaveData() {
+        return { items: { ...this.items }, tools: { ...this.tools }, consumables: { ...this.consumables } };
+    }
+
+    loadSaveData(data) {
+        if (data.items) this.items = { ...this.items, ...data.items };
+        if (data.tools) this.tools = { ...this.tools, ...data.tools };
+        if (data.consumables) this.consumables = { ...this.consumables, ...data.consumables };
     }
 }

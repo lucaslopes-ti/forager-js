@@ -1,132 +1,50 @@
 /**
- * Sistema de Crafting do Jogo Forager
- * Gerencia receitas e criação de novos itens
+ * Sistema de Crafting
  */
 
-/**
- * Classe que representa uma receita de crafting
- */
 class CraftingRecipe {
-    /**
-     * Cria uma nova receita
-     * @param {string} name - Nome da receita
-     * @param {string} result - Tipo do item resultante
-     * @param {Object} ingredients - Objeto com ingredientes necessários
-     */
-    constructor(name, result, ingredients) {
+    constructor(name, result, ingredients, icon, description, category) {
         this.name = name;
         this.result = result;
         this.ingredients = ingredients;
+        this.icon = icon;
+        this.description = description;
+        this.category = category;
     }
 }
 
-/**
- * Sistema de crafting do jogo
- */
 class CraftingSystem {
-    /**
-     * Cria um novo sistema de crafting com receitas padrão
-     */
     constructor() {
-        // Define as receitas disponíveis no jogo
         this.recipes = [
-            new CraftingRecipe(
-                'Machado',
-                'axe',
-                { 'stone': 2, 'grass': 3 }
-            ),
-            new CraftingRecipe(
-                'Picareta',
-                'pickaxe',
-                { 'stone': 5, 'grass': 1 }
-            ),
-            new CraftingRecipe(
-                'Espada',
-                'sword',
-                { 'stone': 3, 'grass': 5 }
-            ),
-            new CraftingRecipe(
-                'Cesta',
-                'basket',
-                { 'grass': 10 }
-            ),
-            new CraftingRecipe(
-                'Martelo',
-                'hammer',
-                { 'stone': 4, 'grass': 2 }
-            )
+            // Ferramentas
+            new CraftingRecipe('Machado', 'axe', { stone: 2, wood: 3 }, '🪓', 'Corta madeira mais rápido', 'tools'),
+            new CraftingRecipe('Picareta', 'pickaxe', { stone: 3, wood: 2 }, '⛏️', 'Minera pedras e ouro', 'tools'),
+            // Armas
+            new CraftingRecipe('Espada', 'sword', { stone: 2, wood: 2, gold: 1 }, '⚔️', 'Mais dano aos inimigos', 'weapons'),
+            new CraftingRecipe('Arco', 'bow', { wood: 5, grass: 3 }, '🏹', 'Ataque à distância', 'weapons'),
+            new CraftingRecipe('Escudo', 'shield', { wood: 3, stone: 2 }, '🛡️', 'Reduz dano recebido', 'weapons'),
+            // Consumíveis
+            new CraftingRecipe('Poção de Vida', 'health_potion', { apple: 5, grass: 3 }, '🧪', 'Restaura 50 HP', 'consumables')
         ];
     }
 
-    /**
-     * Tenta craftar um item baseado na receita
-     * @param {Inventory} inventory - Inventário do jogador
-     * @param {number} recipeIndex - Índice da receita no array
-     * @returns {boolean} - True se conseguiu craftar
-     */
     craft(inventory, recipeIndex) {
-        if (recipeIndex < 0 || recipeIndex >= this.recipes.length) {
-            console.error('Índice de receita inválido:', recipeIndex);
-            return false;
-        }
-
+        if (recipeIndex < 0 || recipeIndex >= this.recipes.length) return false;
         const recipe = this.recipes[recipeIndex];
-        console.log('Craftando receita:', recipe.name, recipe.ingredients);
-
-        // Verifica se tem os ingredientes
-        const hasIngredients = inventory.hasIngredients(recipe.ingredients);
-        console.log('Tem ingredientes?', hasIngredients, 'Inventário:', inventory.getAllItems());
-        
-        if (!hasIngredients) {
-            console.log('Ingredientes insuficientes');
-            return false;
-        }
-
-        // Remove os ingredientes
-        const removed = inventory.removeIngredients(recipe.ingredients);
-        console.log('Ingredientes removidos?', removed);
-        
-        if (!removed) {
-            console.log('Falha ao remover ingredientes');
-            return false;
-        }
-
-        // Adiciona o item craftado
-        inventory.addCraftedItem(recipe.result);
-        console.log('Item craftado adicionado:', recipe.result);
+        if (!inventory.hasIngredients(recipe.ingredients)) return false;
+        if (!inventory.removeIngredients(recipe.ingredients)) return false;
+        inventory.addItem(recipe.result, 1);
         return true;
     }
 
-    /**
-     * Retorna todas as receitas disponíveis
-     * @returns {Array} - Array de receitas
-     */
-    getRecipes() {
-        return this.recipes;
+    getRecipes() { return this.recipes; }
+    
+    getRecipesByCategory(cat) {
+        return this.recipes.filter(r => r.category === cat);
     }
 
-    /**
-     * Retorna uma receita específica
-     * @param {number} index - Índice da receita
-     * @returns {CraftingRecipe|null} - Receita ou null se inválido
-     */
-    getRecipe(index) {
-        if (index >= 0 && index < this.recipes.length) {
-            return this.recipes[index];
-        }
-        return null;
-    }
-
-    /**
-     * Verifica se o jogador pode craftar uma receita
-     * @param {Inventory} inventory - Inventário do jogador
-     * @param {number} recipeIndex - Índice da receita
-     * @returns {boolean} - True se pode craftar
-     */
     canCraft(inventory, recipeIndex) {
-        if (recipeIndex < 0 || recipeIndex >= this.recipes.length) {
-            return false;
-        }
+        if (recipeIndex < 0 || recipeIndex >= this.recipes.length) return false;
         return inventory.hasIngredients(this.recipes[recipeIndex].ingredients);
     }
 }

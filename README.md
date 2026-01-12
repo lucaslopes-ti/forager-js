@@ -1,113 +1,157 @@
-# Forager Game
+# 🌿 Forager JS
 
-## Descrição
+Um jogo de sobrevivência e coleta inspirado em Forager, desenvolvido em JavaScript puro com HTML5 Canvas.
 
-Recria do jogo Forager em JavaScript puro com coleta de recursos, inventário e sistema de crafting. Este jogo foi desenvolvido como atividade EAD para o curso de Programação de Jogos Digitais do SENAI Dr. Celso Charuri.
+![Forager JS](https://img.shields.io/badge/JavaScript-ES6+-yellow?style=flat-square&logo=javascript)
+![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange?style=flat-square&logo=html5)
+![CSS3](https://img.shields.io/badge/CSS3-Animations-blue?style=flat-square&logo=css3)
 
-## Como Executar
+## 🎮 Como Jogar
 
-1. Extraia o arquivo .zip (se aplicável)
-2. Abra o arquivo `index.html` em seu navegador moderno (Chrome, Firefox, Edge, etc.)
-3. Clique no botão "INICIAR JOGO" na tela de início
-4. Use WASD ou Setas para mover o personagem
-5. Ande sobre os recursos para coletá-los automaticamente
-6. Aperte C para abrir o menu de crafting
-7. Clique nos botões de crafting para criar novos itens
+### Controles
 
-## Controles
+| Tecla | Ação |
+|-------|------|
+| `WASD` / `Setas` | Mover o jogador |
+| `Espaço` / `F` | Atacar / Coletar recursos |
+| `E` | Comer maçã (recupera fome) |
+| `Q` | Usar poção de vida |
+| `B` | Modo construção |
+| `1-5` | Selecionar ferramenta |
+| `J` | Abrir painel de missões |
+| `K` | Abrir conquistas |
+| `ESC` | Pausar jogo |
+| `F5` | Salvar jogo |
+| `F9` | Carregar jogo |
 
-- **W/A/S/D** ou **Setas**: Mover o personagem
-- **C**: Abrir/fechar menu de crafting
-- **Mouse**: Clicar em botões de crafting
+### Recursos
 
-## Mecânicas Principais
+- 🍎 **Maçã** - Alimento para recuperar fome
+- 🌿 **Grama** - Material básico
+- 🪨 **Pedra** - Material de construção
+- 🪵 **Madeira** - Material de construção
+- 💰 **Ouro** - Recurso raro e valioso
 
-### Coleta de Recursos
-- Ande sobre os recursos (maçãs, grama, pedras) para coletá-los automaticamente
-- Cada recurso coletado adiciona 5 XP
-- Recursos reaparecem automaticamente no mapa a cada 3 segundos
-- Máximo de 15 recursos simultâneos no mapa
+### Crafting
 
-### Inventário
-- Visualize todos os itens coletados na interface lateral
-- Itens são organizados por tipo com contador de quantidade
-- Itens craftados também aparecem no inventário
+| Item | Ingredientes | Descrição |
+|------|-------------|-----------|
+| 🪓 Machado | 2 Pedra + 3 Madeira | Coleta madeira mais rápido |
+| ⛏️ Picareta | 3 Pedra + 2 Madeira | Minera pedra e ouro |
+| ⚔️ Espada | 2 Pedra + 2 Madeira + 1 Ouro | Mais dano aos inimigos |
+| 🏹 Arco | 5 Madeira + 3 Grama | Ataque à distância |
+| 🛡️ Escudo | 3 Madeira + 2 Pedra | Reduz dano recebido |
+| 🧪 Poção | 5 Maçã + 3 Grama | Restaura 50 HP |
 
-### Sistema de Crafting
-- Combine recursos para criar ferramentas e itens
-- Receitas disponíveis:
-  - **Machado**: 2 pedras + 3 gramas
-  - **Picareta**: 5 pedras + 1 grama
-  - **Espada**: 3 pedras + 5 gramas
-  - **Cesta**: 10 gramas
-  - **Martelo**: 4 pedras + 2 gramas
-- Craftar itens adiciona 20 XP
+### Construções
 
-### Sistema de Progressão
-- Ganhe XP coletando recursos e craftando itens
-- Aumente de nível para desbloquear novas possibilidades
-- XP necessário para próximo nível aumenta progressivamente
+| Estrutura | Custo | Efeito |
+|-----------|-------|--------|
+| 🔥 Fogueira | 5 Madeira + 3 Pedra | Cura vida lentamente |
+| 🚧 Cerca | 4 Madeira | Bloqueia inimigos |
+| 🗼 Torre | 8 Pedra + 5 Madeira + 2 Ouro | Ataca automaticamente |
+| ⚠️ Armadilha | 3 Pedra + 2 Madeira | Causa dano a inimigos |
 
-## Tecnologias
+### Inimigos
 
-- **HTML5 Canvas**: Renderização gráfica
-- **JavaScript Vanilla**: Lógica do jogo (sem frameworks)
-- **CSS3**: Estilização da interface
+- 🟢 **Slime** - Inimigo básico, lento
+- 🦇 **Morcego** - Rápido, pouca vida
+- 👺 **Goblin** - Equilibrado
+- 💀 **Esqueleto** - Forte, mais vida
 
-## Estrutura do Projeto
+### Sistema de Waves
+
+O jogo possui um sistema de waves progressivas:
+- Cada wave aumenta a dificuldade
+- A cada 5 waves aparece um **BOSS**
+- Complete waves para ganhar bônus de pontuação
+
+### Missões
+
+Complete missões para ganhar XP e Ouro:
+- Coletar recursos específicos
+- Derrotar inimigos
+- Construir estruturas
+- Sobreviver waves
+
+### Conquistas
+
+Desbloqueie conquistas realizando feitos especiais:
+- Derrotar inimigos
+- Coletar recursos
+- Alcançar níveis
+- E muito mais!
+
+## 🚀 Como Executar
+
+1. Clone o repositório:
+```bash
+git clone https://github.com/lucaslopes-ti/forager-js.git
+```
+
+2. Abra o arquivo `index.html` em um navegador moderno
+
+Ou use um servidor local:
+```bash
+# Com Python
+python -m http.server 8000
+
+# Com Node.js
+npx serve
+```
+
+## 📁 Estrutura do Projeto
 
 ```
 MeuForager/
-├── index.html          # Arquivo principal HTML
+├── index.html          # Página principal
 ├── css/
-│   └── style.css       # Estilos da interface
+│   └── style.css       # Estilos do jogo
 ├── js/
-│   ├── main.js         # Game loop principal
+│   ├── main.js         # Loop principal
 │   ├── player.js       # Sistema do jogador
-│   ├── world.js        # Sistema do mundo
-│   ├── resources.js    # Sistema de recursos
+│   ├── resources.js    # Recursos coletáveis
 │   ├── inventory.js    # Sistema de inventário
 │   ├── crafting.js     # Sistema de crafting
-│   └── ui.js           # Sistema de interface
-├── README.md           # Este arquivo
-└── DESIGN.md           # Documentação de design
+│   ├── enemies.js      # Sistema de inimigos
+│   ├── structures.js   # Estruturas construíveis
+│   ├── quests.js       # Missões e conquistas
+│   ├── particles.js    # Sistema de partículas
+│   ├── audio.js        # Efeitos sonoros
+│   ├── world.js        # Mundo do jogo
+│   └── ui.js           # Interface do usuário
+└── README.md           # Documentação
 ```
 
-## Assets
+## ✨ Funcionalidades
 
-Os assets visuais são gerados programaticamente usando Canvas API, criando sprites simples e coloridos para:
-- Personagem do jogador
-- Recursos (maçãs, grama, pedras)
-- Elementos decorativos do mundo
+- ✅ Coleta de recursos com feedback visual
+- ✅ Sistema de crafting completo
+- ✅ Inventário com ferramentas e consumíveis
+- ✅ Inimigos com IA e sistema de waves
+- ✅ Boss fights a cada 5 waves
+- ✅ Sistema de combo e multiplicador
+- ✅ Construção de estruturas
+- ✅ Missões e conquistas
+- ✅ Sistema de níveis e XP
+- ✅ Efeitos sonoros sintetizados
+- ✅ Sistema de partículas
+- ✅ Minimapa
+- ✅ Save/Load com LocalStorage
+- ✅ UI moderna e responsiva
 
-## Funcionalidades Implementadas
+## 🛠️ Tecnologias
 
-✅ Personagem controlável com WASD ou setas  
-✅ Coleta de recursos (3 tipos: maçãs, grama, pedras)  
-✅ Sistema de inventário visual em tempo real  
-✅ Sistema básico de crafting com 5 receitas  
-✅ Recursos reaparecem no mapa periodicamente  
-✅ Contador de recursos e nível  
-✅ Tela de início (start screen)  
-✅ UI clara mostrando inventário e crafting  
-✅ Efeitos visuais de partículas ao coletar  
-✅ Código comentado em português  
-✅ Sem erros no console do navegador  
+- **JavaScript ES6+** - Lógica do jogo
+- **HTML5 Canvas** - Renderização gráfica
+- **CSS3** - Animações e UI
+- **Web Audio API** - Efeitos sonoros
+- **LocalStorage** - Persistência de dados
 
-## Melhorias Futuras
+## 📝 Licença
 
-- Implementação de sons reais usando Web Audio API
-- Mais tipos de recursos (madeira, ouro, sementes)
-- Sistema de desbloqueio de áreas
-- Animações mais elaboradas
-- Sistema de save/load
-- Mais receitas de crafting
-- Sistema de upgrades de ferramentas
+Este projeto é de código aberto e está disponível sob a licença MIT.
 
-## Autor
+---
 
-Desenvolvido como atividade EAD para o curso de Programação de Jogos Digitais - SENAI Dr. Celso Charuri
-
-## Data de Desenvolvimento
-
-Dezembro de 2025
+Feito com 💚 em JavaScript
