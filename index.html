@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Forager Game</title>
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+    <!-- Tela de Início -->
+    <div id="start-screen" class="screen">
+        <div class="start-content">
+            <h1>FORAGER</h1>
+            <p>Colete recursos, crie ferramentas e expanda seu mundo!</p>
+            <button id="start-button">INICIAR JOGO</button>
+        </div>
+    </div>
+
+    <!-- Canvas do Jogo -->
+    <canvas id="gameCanvas" width="1024" height="768"></canvas>
+
+    <!-- Sistema de Notificações -->
+    <div id="notifications-container"></div>
+
+    <!-- Container de UI -->
+    <div id="ui-container">
+        <div id="stats-display">
+            <div id="level-display">Nível: <span id="level-value">1</span></div>
+            <div id="xp-display">
+                <div id="xp-label">XP: <span id="xp-value">0</span>/<span id="xp-max">100</span></div>
+                <div id="xp-bar-container">
+                    <div id="xp-bar-fill"></div>
+                    <div id="xp-bar-glow"></div>
+                </div>
+            </div>
+        </div>
+        <div id="inventory-display">
+            <h3>Inventário</h3>
+            <div id="inventory-items"></div>
+        </div>
+        <div id="crafting-menu">
+            <h3>Crafting</h3>
+            <button id="craft-button">Abrir Crafting (C)</button>
+            <div id="crafting-recipes" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/resources.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/crafting.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
